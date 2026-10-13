@@ -1,0 +1,1250 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Restaurante Python</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: teléfono a la izquierda (fijo al hacer scroll), meta y editor a la derecha. En móvil se apila: meta, teléfono, editor. */
+:root{
+  --font-display:'Bricolage Grotesque','DM Sans',system-ui,sans-serif;
+  --font-body:'DM Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --font-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --bg:#EAF0EC; --surface:#FFFFFF; --ink:#12231C; --muted:#52645A; --line:#CCD8D1;
+  --accent:#1E7B5A; --accent-ink:#FFFFFF; --accent-deep:#14573F; --awning-b:#FFFFFF;
+  --tag:#F4C542; --tag-ink:#2B2100; --string:#8A7A4A;
+  --bad:#B3321C; --bad-bg:#FBE6E0;
+  --screen:#F6F9F7; --window:#DDEBE4; --back:#EEF3F0; --note-bg:#DCE7E1; --note-ink:#2A3D34;
+  --bezel:#1B2A24; --focus:#1B4DDB; --sel:#BFE3D2; --glass:rgba(255,255,255,.35); --paper:rgba(18,35,28,.05);
+  --chalk:#21392F; --chalk-ink:#F2F7F3; --chalk-dim:#A9C2B5; --wood:#8A6A3B;
+  --ed-bg:#0F1C16; --ed-bar:#16271F; --ed-fg:#DDF3E8; --ed-dim:#7E9C8D; --ed-line:#243A30;
+  --ed-kw:#7FE3B4; --ed-com:#8FB1A1; --ed-str:#F4C542; --ed-esc:#FF9EC4; --ed-num:#8FC7FF;
+  --ed-err-bg:#3B201A; --ed-err:#FF9A85; --ed-focus:#8FB4FF; --ed-btn:#1D3328;
+  --street:#CFD9D3; --curb:#B9C6BE; --sign-bg:#F4C542; --sign-ink:#2B2100; --b-price:#F4C542;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0B1410; --surface:#13201A; --ink:#E4F1EA; --muted:#9BB2A6; --line:#2A3C33;
+    --accent:#3FBF8E; --accent-ink:#052116; --accent-deep:#2A8F69; --awning-b:#D9EFE4; --string:#6E8A7C;
+    --bad:#FF9A85; --bad-bg:#3B201A;
+    --screen:#0F1A15; --window:#16291F; --back:#101C16; --note-bg:#22372D; --note-ink:#CFE5DA;
+    --bezel:#2C4036; --focus:#8FB4FF; --sel:#1F4A38; --glass:rgba(255,255,255,.08); --paper:rgba(228,241,234,.06);
+    --chalk:#1A2F26; --wood:#A98650;
+    --ed-bg:#08120D; --ed-bar:#112119; --street:#1C2A23; --curb:#2B3D33;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0B1410; --surface:#13201A; --ink:#E4F1EA; --muted:#9BB2A6; --line:#2A3C33;
+  --accent:#3FBF8E; --accent-ink:#052116; --accent-deep:#2A8F69; --awning-b:#D9EFE4; --string:#6E8A7C;
+  --bad:#FF9A85; --bad-bg:#3B201A;
+  --screen:#0F1A15; --window:#16291F; --back:#101C16; --note-bg:#22372D; --note-ink:#CFE5DA;
+  --bezel:#2C4036; --focus:#8FB4FF; --sel:#1F4A38; --glass:rgba(255,255,255,.08); --paper:rgba(228,241,234,.06);
+  --chalk:#1A2F26; --wood:#A98650;
+  --ed-bg:#08120D; --ed-bar:#112119; --street:#1C2A23; --curb:#2B3D33;
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.55 var(--font-body);padding-inline:16px;padding-block:20px 80px;overflow-wrap:break-word}
+h1,h2,h3,p,ol,ul,dl,dd,pre{margin:0}
+button,input,textarea{font:inherit;color:inherit}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:focus-visible{outline:.15em solid var(--focus);outline-offset:.15em}
+::selection{background:var(--sel)}
+
+.app{max-width:80em;margin:0 auto;display:grid;gap:1.25em 2em;align-items:start;
+  grid-template-columns:minmax(0,26em) minmax(0,1fr);
+  grid-template-areas:"top top" "custom custom" "phone goal" "phone work"}
+.top{grid-area:top;display:flex;gap:.8em 1.2em;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.goal{grid-area:goal;min-width:0}
+.phone{grid-area:phone;min-width:0;position:sticky;top:16px}
+.work{grid-area:work;min-width:0;display:grid;gap:1em}
+@media (max-width:900px){
+  .app{grid-template-columns:minmax(0,1fr);grid-template-areas:"top" "custom" "goal" "phone" "work"}
+  .phone{position:static}
+}
+@media (min-width:901px) and (max-height:900px){ .phone{font-size:14px} }
+@media (min-width:901px) and (max-height:780px){ .phone{font-size:12.5px} }
+@media (max-height:620px){ .phone{position:static} }
+
+/* Marca */
+.brand{display:flex;gap:.8em;align-items:center;min-width:0}
+.mark{flex:none;width:2.6em;height:2.1em;border-radius:.25em .25em .6em .6em;
+  background:repeating-linear-gradient(90deg,var(--accent) 0 .45em,var(--awning-b) .45em .9em);
+  border-bottom:.22em solid var(--accent-deep);box-shadow:0 0 0 1px var(--line)}
+.wordmark{font:800 1.9em/1 var(--font-display);letter-spacing:-.02em;text-wrap:balance}
+.tagline{color:var(--muted);font-size:.95em;margin-top:.25em}
+
+/* Botones */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5em;min-height:2.6em;padding:.55em 1em;
+  border:1px solid var(--line);border-radius:.5em;background:var(--surface);cursor:pointer;font-weight:600;font-size:.95em;line-height:1.2;text-align:center}
+.btn:hover{border-color:var(--muted)}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover:not(:disabled){background:var(--accent-deep);border-color:var(--accent-deep);color:#fff}
+.btn[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn.small{min-height:2.2em;padding:.3em .75em;font-size:.88em}
+kbd{font:500 .78em/1 var(--font-mono);padding:.25em .45em;border:1px solid currentColor;border-radius:.3em;opacity:.8}
+
+/* Tarjetas */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:.6em;padding:1.15em 1.3em}
+.eyebrow{font:700 .72em/1.2 var(--font-body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.goal h2{font:800 1.75em/1.1 var(--font-display);letter-spacing:-.015em;margin:.25em 0 .5em;text-wrap:balance}
+.lead{max-width:46em}
+.meter{display:flex;align-items:center;gap:.8em;margin-top:1em}
+.meter .t{font:700 .8em/1.2 var(--font-mono);white-space:nowrap}
+.bar{flex:1;height:.6em;background:var(--line);border-radius:99px;overflow:hidden;min-width:3em}
+.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .5s ease}
+.next{margin-top:.9em;padding:.65em .9em;border-left:.25em solid var(--tag);background:var(--back);border-radius:0 .4em .4em 0}
+.next b{font:700 .72em/1.2 var(--font-body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:.15em}
+.next .warn{display:block;margin-top:.35em;color:var(--bad);font-weight:600;font-size:.92em}
+.next[data-done="true"]{border-left-color:var(--accent)}
+code,.mono{font-family:var(--font-mono);font-size:.9em}
+p code,li code{background:var(--back);padding:.05em .35em;border-radius:.25em;border:1px solid var(--line)}
+
+/* Requisitos */
+.reqs{list-style:none;padding:0;display:grid;gap:.45em;margin-top:1em}
+.req{display:grid;grid-template-columns:auto minmax(0,1fr);gap:.15em .75em;align-items:start;padding:.6em .8em;border:1px solid var(--line);border-radius:.5em;background:var(--surface);transition:background .3s,border-color .3s}
+.req[data-ok="true"]{border-color:var(--accent);background:var(--back)}
+.req[data-next="true"]{border-color:var(--ink)}
+.box{width:1.5em;height:1.5em;border:2px solid var(--muted);border-radius:.3em;display:grid;place-items:center;font:700 .85em/1 var(--font-mono);color:transparent;flex:none;margin-top:.1em;transition:background .25s}
+[data-ok="true"]>.box{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.req .rt{font-weight:700}
+.req .rd{font-size:.86em;color:var(--muted);grid-column:2}
+.subs{grid-column:2;list-style:none;padding:0;margin:.3em 0 0;display:grid;gap:.25em;font-size:.88em}
+.subs li{display:flex;gap:.55em;align-items:center}
+.dot{width:.9em;height:.9em;border-radius:50%;border:2px solid var(--muted);flex:none}
+.subs li[data-ok="true"] .dot{background:var(--accent);border-color:var(--accent)}
+.goal-grid{display:grid;gap:1em 1.4em;margin-top:1em;align-items:start;grid-template-columns:minmax(0,1fr) minmax(0,16em);grid-template-areas:"reqs ex"}
+.goal-grid .reqs{grid-area:reqs;margin-top:0}
+.example{grid-area:ex;display:grid;gap:.5em;width:100%;max-width:18em}
+.ex-cap{font-size:.84em;color:var(--muted)}
+.mini{font-size:10.5px;width:100%;border-radius:1.2em;border:1px solid var(--line);pointer-events:none}
+.mini .window{min-height:11em}
+.static *,.static *::before,.static *::after{animation:none!important}
+@media (max-width:1100px){ .goal-grid{grid-template-columns:minmax(0,1fr);grid-template-areas:"ex" "reqs"} }
+.chips{display:flex;flex-wrap:wrap;gap:.5em}
+
+/* Éxito */
+.cert{margin-top:1em;border:.18em double var(--ink);border-radius:.4em;padding:1.1em 1.3em;display:grid;gap:.6em;background:repeating-linear-gradient(90deg,transparent 0 .9em,var(--paper) .9em 1.8em);animation:pop .6s cubic-bezier(.2,1.3,.4,1) both}
+.cert h3{font:800 1.6em/1.1 var(--font-display);letter-spacing:-.01em;text-wrap:balance}
+.cert dl{display:flex;gap:1.4em;flex-wrap:wrap}
+.cert dt{font:700 .68em/1.2 var(--font-body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.cert dd{font:700 1.2em/1.2 var(--font-mono)}
+
+/* Teléfono */
+.phone-frame{width:100%;max-width:26em;margin-inline:auto;background:var(--bezel);border-radius:2.4em;padding:.7em;box-shadow:0 1.2em 2.4em -1.2em rgba(0,0,0,.45)}
+.notch{width:5.5em;height:1.1em;border-radius:99px;background:var(--bezel);margin:.2em auto .4em;border:1px solid rgba(255,255,255,.12)}
+.screen{--awn-a:#1E7B5A;--awn-deep:#14573F;background:var(--screen);border-radius:1.7em;overflow:hidden;display:flex;flex-direction:column;color:var(--ink);position:relative}
+.screen[data-skin="rojo"]{--awn-a:#C0392B;--awn-deep:#8E2A1F}
+.screen[data-skin="azul"]{--awn-a:#2563B0;--awn-deep:#1B4680}
+.screen[data-skin="naranja"]{--awn-a:#D9731A;--awn-deep:#A5530E}
+.screen[data-skin="morado"]{--awn-a:#7B4BB5;--awn-deep:#58348A}
+.screen[data-skin="rosa"]{--awn-a:#D6457A;--awn-deep:#A32F5A}
+.screen[data-skin="turquesa"]{--awn-a:#1B9AAA;--awn-deep:#127380}
+.screen[data-skin="grafito"]{--awn-a:#4A5560;--awn-deep:#2F3740}
+.screen[data-awn="liso"] .awning,.screen[data-awn="liso"] .valance{background:var(--awn-a)}
+.screen[data-awn="anchas"] .awning,.screen[data-awn="anchas"] .valance{background:repeating-linear-gradient(90deg,var(--awn-a) 0 3em,var(--awning-b) 3em 6em)}
+.screen[data-sign="blanco"]{--sign-bg:#FFFFFF;--sign-ink:#1B1B1B}
+.screen[data-sign="rosa"]{--sign-bg:#F6B8CF;--sign-ink:#3B0F22}
+.screen[data-sign="celeste"]{--sign-bg:#A9D8F5;--sign-ink:#0E2A3D}
+.screen[data-board="negra"]{--chalk:#1B1B1B;--chalk-ink:#F4F4F4;--chalk-dim:#B5B5B5;--wood:#5B4630}
+.screen[data-board="kraft"]{--chalk:#D8B98A;--chalk-ink:#3B2A14;--chalk-dim:#6B5230;--wood:#7A5A33;--b-price:#7A2E12}
+.screen[data-time="tarde"]{--window:#F0C9A6;--street:#D8B9A3;--curb:#C7A28A}
+.screen[data-time="noche"]{--window:#1A2B45;--street:#243449;--curb:#33465F}
+.screen[data-time="noche"] .empty-msg,.screen[data-time="noche"] .lock{color:#C7D4E6}
+.screen[data-time="noche"] .e-t{color:#FFFFFF}
+.screen[data-time="noche"] .lock b{color:#FF9A85}
+.screen[data-bunting="no"] .bunting{display:none!important}
+.appbar{display:flex;justify-content:space-between;align-items:center;gap:.6em;padding:.5em .9em .5em 1.1em;font-size:.72em;color:var(--muted);font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+.appbar .btn{min-height:2.2em;padding:.25em .7em;font-size:1em;letter-spacing:.03em;text-transform:none}
+.scene-wrap{position:relative;overflow:hidden;background:var(--screen)}
+.scene{min-height:0}
+.loadbar{display:none;position:absolute;left:0;right:0;top:0;height:.3em;background:var(--line);overflow:hidden;z-index:5}
+.loadbar i{display:block;height:100%;width:40%;background:var(--accent);animation:slide 1s ease-in-out infinite}
+@keyframes slide{from{transform:translateX(-100%)}to{transform:translateX(260%)}}
+.screen.loading .loadbar{display:block}
+.screen.loading .scene{opacity:.35;filter:saturate(.4);transition:opacity .2s}
+
+.empty-msg{position:relative;z-index:1;display:grid;gap:.4em;justify-items:center;text-align:center;padding:2.4em 1em 1.4em;color:var(--muted)}
+.e-t{font:800 1.1em/1.2 var(--font-display);color:var(--ink)}
+.e-s{font-size:.9em;max-width:17em}
+
+.facade{position:relative}
+.awning{height:2.2em;background:repeating-linear-gradient(90deg,var(--awn-a) 0 1.5em,var(--awning-b) 1.5em 3em)}
+.valance{height:.8em;background:repeating-linear-gradient(90deg,var(--awn-a) 0 1.5em,var(--awning-b) 1.5em 3em);
+  -webkit-mask:radial-gradient(circle at 50% 0,#000 .73em,transparent .76em) 0 0/1.5em .8em repeat-x;mask:radial-gradient(circle at 50% 0,#000 .73em,transparent .76em) 0 0/1.5em .8em repeat-x}
+.bunting{display:none;justify-content:space-between;padding:0 .4em;height:1.35em;margin-top:-.1em}
+.facade.open .bunting{display:flex}
+.bunting i{width:1.3em;height:1.2em;background:var(--c);clip-path:polygon(0 0,100% 0,50% 100%);animation:sway 2.6s ease-in-out infinite alternate;transform-origin:50% 0}
+.bunting i:nth-child(even){animation-delay:-1.3s}
+@keyframes sway{from{transform:rotate(-5deg)}to{transform:rotate(5deg)}}
+.facade.locked .awning,.facade.locked .valance{filter:grayscale(1);opacity:.45}
+.facade.ghost{outline:2px dashed var(--accent);outline-offset:-5px}
+.shopbar{display:flex;align-items:center;justify-content:space-between;gap:.6em;padding:.55em .9em .55em 1em;border-bottom:1px solid var(--line)}
+.shopname{font:800 1.02em/1.15 var(--font-display);letter-spacing:.1em;text-transform:uppercase;min-width:0;overflow-wrap:anywhere}
+.door{flex:none;font:700 .66em/1 var(--font-mono);letter-spacing:.08em;text-transform:uppercase;padding:.55em .7em;border-radius:.3em;border:1px solid var(--line);color:var(--muted);background:var(--back)}
+.door[data-s="open"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.door[data-s="closed"]{background:var(--bad-bg);border-color:var(--bad);color:var(--bad)}
+.window{position:relative;overflow:hidden;background:var(--window);padding:.4em 1em 1.1em;min-height:13em}
+.window::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,var(--glass) 0 14%,transparent 14% 22%,var(--glass) 22% 27%,transparent 27%)}
+.signs{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:.35em}
+.sign{position:relative;margin-top:1em;background:var(--sign-bg);color:var(--sign-ink);font-weight:700;line-height:1.3;padding:.55em 1em;border-radius:.35em;
+  max-width:100%;min-width:6em;text-align:center;white-space:pre-line;overflow-wrap:anywhere;box-shadow:0 .15em 0 rgba(0,0,0,.2);animation:hang .5s ease-out both;animation-delay:var(--d,0s);flex:none}
+.sign::before,.sign::after,.board::before,.board::after{content:"";position:absolute;top:-.9em;width:2px;height:.9em;background:var(--string)}
+.sign::before,.board::before{left:20%}.sign::after,.board::after{right:20%}
+.sign.small{font-size:.85em;font-weight:500}
+.sign.bad{background:var(--bad-bg);color:var(--bad);border:.12em dashed var(--bad);transform:rotate(-3deg);box-shadow:none;animation:drop .6s ease-out both;animation-delay:var(--d,0s)}
+.sign.bad::after{height:.45em;transform-origin:top;transform:rotate(38deg)}
+.sign.bad small{display:block;font:500 .78em/1.4 var(--font-mono);margin-top:.3em;white-space:normal}
+.sign.bad strong{display:block;font-size:.85em;letter-spacing:.06em;text-transform:uppercase}
+.lock{position:relative;z-index:1;margin-top:1.1em;text-align:center;font-size:.88em;color:var(--muted)}
+.lock b{display:block;color:var(--bad);font-size:1.05em}
+@keyframes hang{from{opacity:0;transform:translateY(-.8em) rotate(2deg)}to{opacity:1;transform:none}}
+@keyframes drop{from{opacity:0;transform:translateY(-.8em) rotate(-14deg)}to{opacity:1;transform:rotate(-3deg)}}
+@keyframes fade{from{opacity:0;transform:translateY(.3em)}to{opacity:1;transform:none}}
+@keyframes pop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
+
+.board{position:relative;z-index:1;margin:1.4em auto .2em;width:min(100%,19em);background:var(--chalk);color:var(--chalk-ink);border:.35em solid var(--wood);border-radius:.4em;padding:.8em 1em .95em;
+  box-shadow:0 .2em .6em rgba(0,0,0,.3),inset 0 0 1.2em rgba(0,0,0,.35);animation:hang .55s ease-out both;animation-delay:var(--d,0s)}
+.b-title{font:800 1.02em/1.2 var(--font-display);letter-spacing:.12em;text-align:center;text-transform:uppercase;border-bottom:1px dashed var(--chalk-dim);padding-bottom:.5em;margin-bottom:.6em;overflow-wrap:anywhere}
+.b-rows{list-style:none;padding:0;display:grid;gap:.45em}
+.b-rows li{display:flex;align-items:baseline;gap:.4em;font:500 .88em/1.3 var(--font-mono);animation:fade .4s ease-out both;animation-delay:var(--d,0s)}
+.b-name{min-width:0;overflow-wrap:anywhere}
+.b-dots{flex:1;min-width:1em;border-bottom:2px dotted var(--chalk-dim);transform:translateY(-.2em)}
+.b-price{font-weight:700;color:var(--b-price);white-space:nowrap}
+.b-rows li.plain{display:block;color:var(--chalk-dim);overflow-wrap:anywhere}
+.b-none{text-align:center;color:var(--chalk-dim);font-size:.85em}
+.ribbon{position:absolute;top:.45em;left:50%;margin-left:-6.2em;width:12.4em;white-space:nowrap;text-align:center;background:var(--accent);color:var(--accent-ink);font:800 .9em/1 var(--font-display);letter-spacing:.06em;text-transform:uppercase;padding:.6em .5em;border-radius:.3em;z-index:4;box-shadow:0 .2em .6em rgba(0,0,0,.3);animation:pop .6s cubic-bezier(.2,1.4,.4,1) both;animation-delay:.2s}
+.ribbon.goal{background:var(--ink);color:var(--bg)}
+.conf{position:absolute;top:-1em;width:.5em;height:.8em;z-index:6;animation:fall 2s ease-in forwards;pointer-events:none}
+@keyframes fall{to{transform:translate(var(--x),22em) rotate(var(--r));opacity:.9}}
+
+.street{position:relative;height:8em;overflow:hidden;background:var(--street);border-top:.25em solid var(--curb)}
+.street::after{content:"";position:absolute;left:0;right:0;bottom:0;height:.7em;background:repeating-linear-gradient(90deg,var(--curb) 0 2.4em,transparent 2.4em 2.5em);opacity:.7;pointer-events:none}
+.s-count{position:absolute;left:.7em;top:.5em;z-index:5;font:700 .66em/1 var(--font-mono);letter-spacing:.05em;text-transform:uppercase;padding:.45em .6em;border-radius:.3em;background:var(--surface);color:var(--muted);border:1px solid var(--line)}
+.s-count:empty{display:none}
+.s-door{position:absolute;right:.8em;bottom:.7em;width:3.6em;height:5.8em;z-index:1}
+.s-in{position:absolute;inset:.2em;background:#FFE9A8;border-radius:.2em .2em 0 0}
+.s-door[data-s="closed"] .s-in,.s-door[data-s="idle"] .s-in{background:#3A4A42}
+.s-leaf{position:absolute;inset:0;background:var(--wood);border-radius:.3em .3em 0 0;transform-origin:left center;transition:transform .35s ease;box-shadow:inset 0 0 0 .2em rgba(0,0,0,.18)}
+.s-leaf::before{content:"";position:absolute;left:18%;right:18%;top:12%;height:34%;background:rgba(255,255,255,.35);border-radius:.15em}
+.s-knob{position:absolute;right:.45em;top:56%;width:.45em;height:.45em;border-radius:50%;background:#F4C542}
+.s-door.in .s-leaf{transform:perspective(20em) rotateY(-75deg)}
+.s-tag{position:absolute;left:50%;top:-1.5em;transform:translateX(-50%);white-space:nowrap;font:700 .6em/1 var(--font-mono);letter-spacing:.08em;text-transform:uppercase;padding:.5em .65em;border-radius:.25em;background:var(--accent);color:var(--accent-ink);border:1px solid var(--accent);z-index:2}
+.s-door[data-s="closed"] .s-tag{background:var(--bad-bg);color:var(--bad);border-color:var(--bad)}
+.s-door[data-s="idle"] .s-tag{background:var(--back);color:var(--muted);border-color:var(--line)}
+.s-people{position:absolute;inset:0;z-index:2}
+.person{position:absolute;left:0;bottom:.7em;width:2.4em;height:3.5em;transform:translateX(var(--x,0em));transition:transform var(--dur,.9s) ease-in-out,opacity .4s ease,bottom .3s ease;animation:appear .5s ease-out}
+.person.gone{opacity:0}
+.person.leaving{bottom:.1em;z-index:4}
+.p-in{width:100%;height:100%;transition:transform .2s}
+.person.flip .p-in{transform:scaleX(-1)}
+.person svg{display:block;width:100%;height:100%;overflow:visible}
+.person.walk svg{animation:bob .32s ease-in-out infinite alternate}
+@keyframes bob{from{transform:translateY(0)}to{transform:translateY(-.25em)}}
+@keyframes appear{from{opacity:0}to{opacity:1}}
+.p-body{fill:var(--pb)}.p-leg{fill:#3A4651}.p-head{fill:var(--ps)}.p-hair{fill:var(--ph)}.p-eye{fill:#2B2100}
+.p-m{fill:none;stroke:#2B2100;stroke-width:1.7;stroke-linecap:round;display:none}
+.person[data-mood="idle"] .m-idle,.person[data-mood="happy"] .m-happy,.person[data-mood="sad"] .m-sad{display:block}
+.p-tear{fill:#4FB3E8;display:none}
+.person[data-mood="sad"] .p-tear{display:block}
+.bub{position:absolute;bottom:calc(100% + .35em);left:50%;transform:translate(-50%,.3em);opacity:0;pointer-events:none;white-space:nowrap;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:.6em;padding:.35em .65em;font-size:.78em;font-weight:600;line-height:1.25;transition:opacity .25s,transform .25s;z-index:6;box-shadow:0 .15em .4em rgba(0,0,0,.18)}
+.bub.show{opacity:1;transform:translate(-50%,0)}
+.bub.sad{color:var(--bad)}
+.bub::after{content:"";position:absolute;left:50%;bottom:-.3em;width:.55em;height:.55em;background:inherit;border-right:1px solid var(--line);border-bottom:1px solid var(--line);transform:translateX(-50%) rotate(45deg)}
+.kitchen{background:var(--back);border-top:.2em dashed var(--line);padding:.6em 1em .8em}
+.kitchen h3{font:700 .66em/1.2 var(--font-body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.45em}
+.notes{display:flex;flex-wrap:wrap;gap:.4em;min-height:1.8em}
+.notes:empty::before{content:"Sin notas por ahora";color:var(--muted);font-size:.85em}
+.note{font:500 .78em/1.35 var(--font-mono);background:var(--note-bg);color:var(--note-ink);padding:.3em .6em;border-radius:.25em;transform:rotate(-1deg);overflow-wrap:anywhere;animation:hang .45s ease-out both;animation-delay:var(--d,0s)}
+.statusbar{padding:.65em 1em;font-size:.85em;border-top:1px solid var(--line);background:var(--screen);min-height:2.9em;color:var(--muted)}
+.statusbar[data-s="bad"]{color:var(--bad);background:var(--bad-bg);font-weight:600}
+.statusbar[data-s="ok"]{color:var(--accent);font-weight:700}
+
+/* Editor estilo terminal */
+.term{border-radius:.7em;overflow:hidden;background:var(--ed-bg);color:var(--ed-fg);border:1px solid var(--ed-line)}
+.term-head{display:flex;align-items:center;gap:.8em;padding:.5em .9em;background:var(--ed-bar);border-bottom:1px solid var(--ed-line);font:500 .78em/1.2 var(--font-mono);color:var(--ed-dim)}
+.dots{display:flex;gap:.35em}.dots i{width:.7em;height:.7em;border-radius:50%;background:var(--ed-line)}
+.fname{color:var(--ed-fg)}.lang{margin-left:auto}
+.quick{display:flex;gap:.4em;padding:.5em .7em;border-bottom:1px solid var(--ed-line);overflow-x:auto;background:var(--ed-bar)}
+.quick button{flex:none;min-width:2.6em;min-height:2.2em;padding:.2em .7em;border:1px solid var(--ed-line);border-radius:.4em;background:var(--ed-btn);color:var(--ed-fg);font:500 .82em/1 var(--font-mono);cursor:pointer}
+.quick button:hover{border-color:var(--ed-dim)}
+.ed-wrap{--ed-fs:.85em;display:grid;grid-template-columns:auto minmax(0,1fr);height:17em;font-family:var(--font-mono)}
+.gutter{overflow:hidden;text-align:right;padding:.6em .7em 1.5em .9em;color:var(--ed-dim);font-size:var(--ed-fs);line-height:1.6;border-right:1px solid var(--ed-line);min-width:2.8em;user-select:none}
+.ed-main{position:relative;min-width:0}
+.hl,.src-ta{position:absolute;inset:0;margin:0;padding:.6em .8em 1.5em;font:400 var(--ed-fs)/1.6 var(--font-mono);white-space:pre;tab-size:4;border:0;letter-spacing:0}
+.hl{overflow:hidden;pointer-events:none;color:var(--ed-fg)}
+.src-ta{overflow:auto;background:transparent;color:transparent;-webkit-text-fill-color:transparent;caret-color:var(--ed-fg);resize:none;outline:none;width:100%;height:100%}
+.src-ta:focus-visible{outline:none;box-shadow:inset 0 0 0 .15em var(--ed-focus)}
+.l{display:block}
+.l.err{background:var(--ed-err-bg);box-shadow:inset .22em 0 var(--ed-err)}
+.l.ph{color:var(--ed-dim);font-style:italic}
+.t-com{color:var(--ed-com);font-style:italic}
+.t-str{color:var(--ed-str)}
+.t-esc{color:var(--ed-esc);font-weight:700}
+.t-kw{color:var(--ed-kw);font-weight:700}
+.t-num{color:var(--ed-num)}
+@media (pointer:coarse){ .ed-wrap{--ed-fs:16px} }
+.runbar{display:flex;gap:.6em;align-items:center;padding:.6em .8em;border-top:1px solid var(--ed-line);background:var(--ed-bar);flex-wrap:wrap}
+.runbar .btn:not(.primary){background:var(--ed-btn);border-color:var(--ed-line);color:var(--ed-fg)}
+.runbar .btn.primary kbd{opacity:.9}
+.console{background:var(--ed-bg);border-top:1px solid var(--ed-line);padding:.6em 1em .9em;font:400 .84em/1.55 var(--font-mono);min-height:7.5em;max-height:16em;overflow:auto}
+.console h3{font:700 .66em/1.2 var(--font-body);letter-spacing:.1em;text-transform:uppercase;color:var(--ed-dim);margin-bottom:.4em}
+.console .cmd,.console .exit{color:var(--ed-dim)}
+.console .exit.bad{color:var(--ed-err)}
+.console .out{white-space:pre-wrap;overflow-wrap:anywhere}
+.console .err{white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ed-err);margin-top:.3em}
+.console .exit{margin-top:.4em}
+
+/* Personalizar */
+.custom{grid-area:custom;min-width:0}
+.custom summary{cursor:pointer;font:800 1.15em/1.2 var(--font-display);display:flex;align-items:baseline;gap:.4em .8em;flex-wrap:wrap}
+.custom summary small{font:400 .75em/1.3 var(--font-body);color:var(--muted)}
+.custom[open] summary{margin-bottom:1em}
+.opt-grid{display:grid;gap:1em 1.5em;grid-template-columns:repeat(auto-fit,minmax(12.5em,1fr))}
+.seg{display:flex;flex-wrap:wrap;gap:.3em}
+.seg .btn{min-height:2.2em;padding:.25em .7em;font-size:.88em}
+.opt-actions{display:flex;gap:.6em;margin-top:1em;flex-wrap:wrap}
+.field{display:grid;gap:.35em;align-content:start}
+.field>label,.field>span.lb{font:700 .72em/1.2 var(--font-body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+input[type="text"]{width:100%;padding:.6em .75em;border:1px solid var(--line);border-radius:.45em;background:var(--surface);color:var(--ink);font:inherit;min-height:2.6em}
+.skins{display:flex;gap:.6em;flex-wrap:wrap}
+.swatch{width:2.4em;height:2.4em;border-radius:50%;border:.18em solid var(--surface);outline:1px solid var(--line);cursor:pointer;background:var(--c);padding:0}
+.swatch[aria-pressed="true"]{outline:.17em solid var(--ink)}
+
+.stats{display:flex;gap:.9em;flex-wrap:wrap;text-transform:none;letter-spacing:.02em;font-weight:600}
+.stats b{color:var(--ink);font-variant-numeric:tabular-nums}
+[hidden]{display:none!important}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.secret{margin-top:1.2em;padding:1em 1.1em;border:2px dashed var(--ink);border-radius:.6em;background:repeating-linear-gradient(135deg,transparent 0 .7em,rgba(128,128,128,.07) .7em 1.4em);animation:pop .4s both}
+.secret h3{font:800 1.2em/1.2 var(--font-display);margin:.1em 0 .4em;display:flex;align-items:center;gap:.5em}
+.secret p{margin:.3em 0;line-height:1.5}
+.price{background:var(--ink);color:var(--bg);border-radius:99px;padding:.05em .6em;font-size:.85em}
+.pay{display:flex;gap:.6em;flex-wrap:wrap;margin-top:.7em}
+.pay input{flex:1 1 12em;width:auto}
+.pay-msg{min-height:1.4em;font-weight:600}
+.pay-msg[data-s="bad"]{color:var(--err,#c0392b)}
+.pay-msg[data-s="ok"]{color:var(--ok,#1e8e4e)}
+.secret .code{margin:.6em 0 0;padding:.8em 1em;border:1px solid var(--line);border-radius:.45em;background:var(--surface);font:500 .85em/1.6 var(--font-mono);overflow:auto;white-space:pre}
+.secret .code .l{display:block}
+.jump{display:none;position:fixed;right:16px;bottom:calc(env(safe-area-inset-bottom,0px) + 16px);z-index:15;min-height:2.8em;padding:.5em 1em;border-radius:99px;border:1px solid var(--ink);background:var(--ink);color:var(--bg);font-weight:700;font-size:.9em;cursor:pointer;box-shadow:0 .3em .9em rgba(0,0,0,.35)}
+@media (max-width:900px){ .jump{display:inline-flex;align-items:center} }
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 72px);transform:translate(-50%,2em);background:var(--ink);color:var(--bg);padding:.65em 1.1em;border-radius:.6em;font-weight:600;font-size:.92em;max-width:calc(100% - 32px);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:20;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <span class="mark" aria-hidden="true"></span>
+      <div>
+        <h1 class="wordmark">Restaurante Python</h1>
+        <p class="tagline">Reto práctico: print() y comentarios con #</p>
+      </div>
+    </div>
+  </header>
+
+  <details class="custom card" id="custom" open>
+    <summary>Personaliza tu restaurante <small>Los cambios se ven al instante en tu teléfono.</small></summary>
+    <div class="opt-grid" id="optGrid"></div>
+    <div class="opt-actions"><button class="btn small" id="resetOpts" type="button">Restablecer opciones</button><button class="btn small" id="freshBtn" type="button">Empezar de cero</button></div>
+    <div class="secret" id="secret" hidden>
+      <p class="eyebrow">Rincón secreto · solo para curiosos</p>
+      <h3>Código resultado <span class="price">$2</span></h3>
+      <p>Descubriste la caja registradora escondida. El código resultado cuesta <b>2 dólares</b>, pagados <b>en persona</b> a quien te califica. Al pagar te dará una clave.</p>
+      <form class="pay" id="payForm" autocomplete="off">
+        <label for="payKey" class="sr">Clave de pago</label>
+        <input id="payKey" type="text" placeholder="Clave que te da quien califica" maxlength="24" autocomplete="off">
+        <button class="btn primary small" type="submit">Desbloquear</button>
+      </form>
+      <p class="pay-msg" id="payMsg" role="status"></p>
+      <div id="payCode" hidden>
+        <pre class="code" id="payPre"></pre>
+        <div class="opt-actions"><button class="btn small" id="payCopy" type="button">Copiar código</button><button class="btn small primary" id="payLoad" type="button">Pasarlo al editor</button></div>
+      </div>
+    </div>
+  </details>
+
+  <section class="goal card" id="goal" aria-labelledby="goalTitle">
+    <p class="eyebrow">Tu meta</p>
+    <h2 id="goalTitle">Abre tu restaurante con dos print()</h2>
+    <p class="lead">Escribe el código que cuelga el cartel de bienvenida y el menú del día. Cada vez que cumplas un requisito, se marca en verde. Cuando estén los cinco y no haya errores, el restaurante abre.</p>
+    <div class="meter"><span class="t" id="reqCount">0 de 5</span><div class="bar" aria-hidden="true"><i id="reqBar"></i></div></div>
+    <div id="victory"></div>
+    <div class="next" id="nextHint" aria-live="polite"></div>
+    <div class="goal-grid">
+      <aside class="example" aria-labelledby="exTitle">
+        <p class="eyebrow" id="exTitle">Ejemplo del resultado</p>
+        <div class="screen mini static" data-skin="verde"><div id="exScene"></div></div>
+        <p class="ex-cap">Así se ve el restaurante cuando el código está completo. El tuyo puede tener otro saludo y otros platos.</p>
+      </aside>
+      <ol class="reqs" id="reqs" aria-label="Requisitos del reto"></ol>
+    </div>
+  </section>
+
+  <section class="phone" id="phone" aria-label="Simulador del restaurante">
+    <div class="phone-frame">
+      <div class="notch" aria-hidden="true"></div>
+      <div class="screen" id="screen" data-skin="verde">
+        <div class="appbar">
+          <span class="stats" aria-label="Contadores del restaurante"><span><b id="stSigns">0</b> carteles</span><span><b id="stNotes">0</b> notas</span><span><b id="stClients">0</b> atendidos</span></span>
+          <button class="btn" type="button" id="goalBtn" aria-pressed="false">Ver la meta</button>
+        </div>
+        <div class="scene-wrap" id="sceneWrap">
+          <div class="loadbar" aria-hidden="true"><i></i></div>
+          <div class="scene" id="scene" aria-live="polite"></div>
+        </div>
+        <div class="kitchen">
+          <h3>Cocina · notas internas (comentarios)</h3>
+          <div class="notes" id="notes" aria-label="Comentarios del código"></div>
+        </div>
+        <div class="statusbar" id="statusbar" role="status" data-s="wait"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="work" aria-label="Editor y consola">
+    <div class="term">
+      <div class="term-head"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="fname">restaurante.py</span><span class="lang">Python 3</span></div>
+      <div class="quick" id="quick" role="toolbar" aria-label="Teclas rápidas">
+        <button type="button" data-q="0">print()</button>
+        <button type="button" data-q="1">" "</button>
+        <button type="button" data-q="2">\n</button>
+        <button type="button" data-q="3">#</button>
+        <button type="button" data-q="4">Sangría</button>
+      </div>
+      <div class="ed-wrap" id="edWrap">
+        <div class="gutter" id="gutter" aria-hidden="true"></div>
+        <div class="ed-main">
+          <pre class="hl" id="hl" aria-hidden="true"></pre>
+          <textarea class="src-ta" id="ta" wrap="off" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Código de Python"></textarea>
+        </div>
+      </div>
+      <div class="runbar">
+        <button class="btn primary" id="runBtn" type="button">
+          <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 1.5v11l9-5.5z" fill="currentColor"/></svg>
+          Ejecutar código <kbd>Ctrl + Enter</kbd>
+        </button>
+        <button class="btn" id="clearBtn" type="button">Borrar todo</button>
+      </div>
+      <div class="console" id="consoleBox" aria-live="polite">
+        <h3>Consola · salida (stdout)</h3>
+        <div id="cons"></div>
+      </div>
+    </div>
+
+  </section>
+</div>
+<button class="jump" id="jump" type="button">Ver el restaurante</button>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/*PURE_START*/
+const FRIENDLY={
+  quote:'Dejaste un cartel a medias: abriste unas comillas y no las cerraste. Cada texto necesita comillas al empezar y al terminar.',
+  triple:'Las comillas triples no se usan en este reto. Escribe cada línea entre comillas normales y sepáralas con \\n.',
+  'paren-open':'Falta el paréntesis. print necesita paréntesis, como el marco que sostiene el cartel: print( ... ).',
+  'paren-close':'Abriste un paréntesis y no lo cerraste. Revisa que el print termine con ).',
+  unmatched:'Sobra un paréntesis de cierre. Cada ) debe tener su ( de apertura.',
+  case:'Python distingue mayúsculas de minúsculas. La palabra se escribe print, toda en minúsculas.',
+  unknown:'Python no conoce esa palabra. Para mostrar un cartel usa print( ), y para dejar una nota usa #.',
+  noquotes:'Sin comillas, Python cree que ese texto es un nombre que debería conocer. Los textos van entre comillas.',
+  curly:'Esas comillas curvas vienen de un procesador de texto o del teclado del móvil. Python solo entiende las comillas rectas " y \'.',
+  indent:'Esta línea empieza con espacios y Python no lo espera aquí. Las instrucciones empiezan pegadas al borde izquierdo (solo dentro de un print( ... ) puedes indentar).',
+  comma:'Entre dos piezas falta una coma. Dos textos seguidos entre comillas sí se pegan, pero un texto y un número necesitan coma.',
+  generic:'Python no entiende esta línea. Revisa las comillas y los paréntesis, y que cada línea empiece con print o con #.'
+};
+const NAME_RE=/^[\p{L}_][\p{L}\p{N}_]*/u;
+const CURLY=/[“”‘’]/;
+
+function numStr(tok){
+  const v=Number(tok);
+  if(!Number.isFinite(v))return tok;
+  let s=String(v);
+  if(tok.indexOf('.')>=0&&s.indexOf('.')<0&&s.indexOf('e')<0)s+='.0';
+  return s;
+}
+
+function lex(src){
+  const lines=src.replace(/\r/g,'').split('\n');
+  const toks=[],comments=[];
+  lines.forEach((ln,li)=>{
+    const n=li+1;
+    const indent=/^[ \t]*/.exec(ln)[0].length;
+    let i=0,first=true;
+    const push=(t,col)=>{t.line=n;t.col=col;if(first){t.first=true;t.indent=indent;first=false;}toks.push(t);};
+    while(i<ln.length){
+      const c=ln[i];
+      if(c===' '||c==='\t'){i++;continue;}
+      if(c==='#'){comments.push({line:n,text:ln.slice(i+1).trim(),inline:!first});break;}
+      if(c==='"'||c==="'"){
+        let j=i+1,val='',nl=0,closed=false;
+        while(j<ln.length){
+          const d=ln[j];
+          if(d==='\\'&&j+1<ln.length){
+            const e=ln[j+1];
+            if(e==='n'){val+='\n';nl++;}
+            else if(e==='t')val+='\t';
+            else if(e==='\\')val+='\\';
+            else if(e==='"')val+='"';
+            else if(e==="'")val+="'";
+            else val+='\\'+e;
+            j+=2;continue;
+          }
+          if(d===c){closed=true;break;}
+          val+=d;j++;
+        }
+        if(!closed){
+          const triple=/"""|'''/.test(ln);
+          push({type:'error',err:{type:'SyntaxError',lex:true,line:n,col:i,hint:triple?'triple':'quote',
+            msg:triple?`unterminated triple-quoted string literal (detected at line ${n})`:`unterminated string literal (detected at line ${n})`}},i);
+          break;
+        }
+        push({type:'str',value:val,nl,slash:val.indexOf('/n')>=0},i);
+        i=j+1;continue;
+      }
+      if(CURLY.test(c)){
+        push({type:'error',err:{type:'SyntaxError',lex:true,line:n,col:i,hint:'curly',
+          msg:`invalid character '${c}' (U+${c.codePointAt(0).toString(16).toUpperCase().padStart(4,'0')})`}},i);
+        break;
+      }
+      const m=NAME_RE.exec(ln.slice(i));
+      if(m){push({type:'name',value:m[0]},i);i+=m[0].length;continue;}
+      const nm=/^\d+(\.\d+)?/.exec(ln.slice(i));
+      if(nm){push({type:'num',value:nm[0]},i);i+=nm[0].length;continue;}
+      push({type:'punct',value:c},i);i++;
+    }
+  });
+  return{toks,comments,lines};
+}
+
+function parseTokens(toks){
+  const stmts=[];let p=0;
+  const E=(type,msg,hint,line,col)=>({type,msg,hint,line,col});
+  function parseCall(start){
+    const nameTok=toks[start],open=toks[start+1];
+    let q=start+2,nl=0,slash=false,hasName=false;
+    const args=[];
+    const never=()=>E('SyntaxError',"'(' was never closed",'paren-close',open.line,open.col);
+    for(;;){
+      const t=toks[q];
+      if(!t)throw never();
+      if(t.type==='error')throw t.err;
+      if(t.type==='punct'&&t.value===')'){q++;break;}
+      let arg;
+      if(t.type==='str'){
+        let val='';
+        while(toks[q]&&toks[q].type==='str'){val+=toks[q].value;nl+=toks[q].nl;if(toks[q].slash)slash=true;q++;}
+        arg={type:'str',v:val};
+      }else if(t.type==='num'){arg={type:'num',v:numStr(t.value)};q++;}
+      else if(t.type==='name'){arg={type:'name',v:t.value};hasName=true;q++;}
+      else if(t.type==='punct'&&t.value==='-'&&toks[q+1]&&toks[q+1].type==='num'){arg={type:'num',v:numStr('-'+toks[q+1].value)};q+=2;}
+      else throw E('SyntaxError','invalid syntax','generic',t.line,t.col);
+      args.push(arg);
+      const a=toks[q];
+      if(!a)throw never();
+      if(a.type==='error')throw a.err;
+      if(a.type==='punct'&&a.value===','){q++;continue;}
+      if(a.type==='punct'&&a.value===')'){q++;break;}
+      if(a.type==='str'||a.type==='num'||a.type==='name'){
+        if(a.first)throw never();
+        throw E('SyntaxError','invalid syntax. Perhaps you forgot a comma?','comma',a.line,a.col);
+      }
+      throw E('SyntaxError','invalid syntax','generic',a.line,a.col);
+    }
+    const close=toks[q-1];
+    return{next:q,stmt:{kind:'call',name:nameTok.value,line:nameTok.line,endLine:close.line,args,hasName,nl,slash,
+      text:hasName?null:args.map(a=>a.v).join(' ')}};
+  }
+  try{
+    while(p<toks.length){
+      const t=toks[p];
+      if(t.type==='error')throw t.err;
+      if(t.first&&t.indent>0)throw E('IndentationError','unexpected indent','indent',t.line,0);
+      if(t.type==='punct'){
+        throw t.value===')'?E('SyntaxError',"unmatched ')'",'unmatched',t.line,t.col):E('SyntaxError','invalid syntax','generic',t.line,t.col);
+      }
+      if(t.type==='str'||t.type==='num'){
+        let q=p+1;
+        if(t.type==='str')while(toks[q]&&toks[q].line===t.line&&toks[q].type==='str')q++;
+        const nx=toks[q];
+        if(nx&&nx.line===t.line){
+          if(nx.type==='error')throw nx.err;
+          throw E('SyntaxError','invalid syntax','generic',nx.line,nx.col);
+        }
+        stmts.push({kind:'noop',line:t.line});p=q;continue;
+      }
+      const nx=toks[p+1];
+      const same=nx&&nx.line===t.line;
+      if(same&&nx.type==='error')throw nx.err;
+      if(same&&nx.type==='punct'&&nx.value==='('){
+        const r=parseCall(p);
+        p=r.next;stmts.push(r.stmt);
+        const after=toks[p];
+        if(after&&after.line===r.stmt.endLine){
+          if(after.type==='error')throw after.err;
+          if(after.type==='punct'&&after.value===')')throw E('SyntaxError',"unmatched ')'",'unmatched',after.line,after.col);
+          throw E('SyntaxError','invalid syntax','generic',after.line,after.col);
+        }
+        continue;
+      }
+      if(same){
+        if(t.value==='print'&&(nx.type==='str'||nx.type==='num'||nx.type==='name'))
+          throw E('SyntaxError',"Missing parentheses in call to 'print'. Did you mean print(...)?",'paren-open',t.line,t.col);
+        throw E('SyntaxError','invalid syntax','generic',nx.line,nx.col);
+      }
+      stmts.push(t.value==='print'?{kind:'noop',line:t.line}:{kind:'name',name:t.value,line:t.line});
+      p++;
+    }
+  }catch(e){
+    if(!(e&&e.type))throw e;
+    if(!e.lex){const lt=toks.find(x=>x.type==='error'&&x.line===e.line);if(lt)e=lt.err;}
+    return{stmts,error:e};
+  }
+  return{stmts,error:null};
+}
+
+function analyze(src){
+  const lx=lex(src);
+  const ps=parseTokens(lx.toks);
+  const an={stmts:ps.stmts,comments:lx.comments,lines:lx.lines,error:null,outputs:[]};
+  const rt=(name,line,hint)=>({type:'NameError',msg:`name '${name}' is not defined`,hint,line,phase:'runtime'});
+  const hintFor=n=>n.toLowerCase()==='print'?'case':'unknown';
+  if(ps.error){an.error=Object.assign({phase:'syntax'},ps.error);}
+  else{
+    for(const s of ps.stmts){
+      if(s.kind==='noop')continue;
+      if(s.kind==='name'){an.error=rt(s.name,s.line,hintFor(s.name));break;}
+      if(s.name!=='print'){an.error=rt(s.name,s.line,hintFor(s.name));break;}
+      if(s.hasName){an.error=rt(s.args.find(a=>a.type==='name').v,s.line,'noquotes');break;}
+      an.outputs.push({text:s.text,line:s.line,endLine:s.endLine,nl:s.nl});
+    }
+  }
+  if(an.error){
+    an.error.raw=lx.lines[an.error.line-1]||'';
+    an.error.friendly=FRIENDLY[an.error.hint]||FRIENDLY.generic;
+  }
+  return an;
+}
+
+function tracebackText(e){
+  const raw=e.raw||'';
+  const lead=/^\s*/.exec(raw)[0].length;
+  const src='    '+raw.slice(lead);
+  if(e.phase==='syntax'){
+    let t=`  File "restaurante.py", line ${e.line}\n${src}`;
+    if(e.col!=null&&e.col>=lead)t+=`\n    ${' '.repeat(e.col-lead)}^`;
+    return t+`\n${e.type}: ${e.msg}`;
+  }
+  return `Traceback (most recent call last):\n  File "restaurante.py", line ${e.line}, in <module>\n${src}\n${e.type}: ${e.msg}`;
+}
+
+const norm=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+function checkReq(an){
+  const prints=an.stmts.filter(s=>s.kind==='call'&&s.name==='print'&&!s.hasName);
+  const p1=prints[0],p2=prints[1];
+  const sc=an.comments.filter(c=>!c.inline&&c.text);
+  const r={};
+  r.c1=sc.some(c=>!p1||c.line<p1.line);
+  r.p1=!!p1&&p1.text.trim()!==''&&p1.text.indexOf('\n')<0;
+  r.c2=!!p1&&sc.some(c=>norm(c.text).indexOf('menu del dia')>=0&&c.line>p1.endLine&&(!p2||c.line<p2.line));
+  const ls=p2?p2.text.split('\n'):[];
+  r.p2=!!p2&&ls[0].trim()!=='';
+  r.nl=!!p2&&p2.nl>=3&&ls.length>=4;
+  const dishes=ls.slice(1).filter(l=>l.trim());
+  r.dishes=!!p2&&dishes.length===3&&dishes.every(l=>/\p{L}/u.test(l)&&/\d/.test(l));
+  r.tooMany=!!p2&&dishes.length>3;
+  r.slash=!!p2&&p2.slash&&p2.nl===0;
+  r.menuOk=r.nl&&r.dishes;
+  r.count=[r.c1,r.p1,r.c2,r.p2,r.menuOk].filter(Boolean).length;
+  r.done=r.count===5;
+  return r;
+}
+function nextHint(r){
+  if(!r.c1)return 'Empieza con un comentario: escribe # y una nota para el saludo, por ejemplo # Saludo al cliente.';
+  if(!r.p1)return 'Ahora escribe un print( ) con un mensaje de bienvenida al restaurante, en una sola línea y entre comillas.';
+  if(!r.c2)return 'Deja otro comentario que diga «Menú del día», entre el saludo y el menú.';
+  if(!r.p2)return 'Escribe un segundo print( con el título del menú en la primera línea, por ejemplo "--- MENÚ DEL DÍA ---".';
+  if(!r.nl)return r.slash?'Usa la barra invertida \\n, no la barra normal /n.':'Dentro de ese mismo print, separa cada línea con "\\n". Necesitas 3 saltos de línea.';
+  if(!r.dishes)return r.tooMany?'Tienes más de 3 platos. El reto pide exactamente 3.':'Agrega 3 platos, cada uno con su nombre y su precio (un número).';
+  return '¡Cumpliste todo! Pulsa Ejecutar para abrir el restaurante.';
+}
+
+function parseMenu(text){
+  const lines=text.split('\n').map(l=>l.trim()).filter(Boolean);
+  const strip=/^[\s\-–—=*~_·]+|[\s\-–—=*~_·]+$/g;
+  const title=(lines[0]||'').replace(strip,'')||lines[0]||'';
+  const rows=lines.slice(1).map(l=>{
+    const m=/^(.*?)\s*[-–—._~=·\s]*?(\$?\s?\d[\d.,]*(?:\s?[A-Za-z$€]{1,4})?)$/.exec(l);
+    if(m&&/\p{L}/u.test(m[1]))return{name:m[1].trim(),price:m[2].trim()};
+    return{plain:l};
+  });
+  return{title,rows};
+}
+/*PURE_END*/
+
+/* ---------- Datos ---------- */
+const MODEL=`# Saludo al cliente
+print("¡Hola! Bienvenidos a mi restaurante")
+
+# Menú del día
+print(
+    "--- MENÚ DEL DÍA ---" "\\n"
+    "Pizza ----------------- $10" "\\n"
+    "Hamburguesa ----------- $8" "\\n"
+    "Ensalada -------------- $6"
+)`;
+const SKINS=[['verde','#1E7B5A'],['rojo','#C0392B'],['azul','#2563B0'],['naranja','#D9731A'],['morado','#7B4BB5'],['rosa','#D6457A'],['turquesa','#1B9AAA'],['grafito','#4A5560']];
+const BUNTING=['#F4C542','#E8566F','#4FB3E8','#FFFFFF','#7BD389','#F4C542','#E8566F','#4FB3E8','#FFFFFF','#7BD389','#F4C542','#E8566F','#4FB3E8','#FFFFFF'];
+const QUICK=[{o:'print(',c:')'},{o:'"',c:'"'},{o:'\\n',c:''},{o:'# ',c:''},{o:'    ',c:''}];
+const PLACEHOLDER='Empieza aquí. Primero un comentario con #, por ejemplo: # Saludo al cliente';
+
+/* ---------- Estado ---------- */
+const KEY='restaurante-python-v1';
+const DEF={code:'',name:'Mi restaurante',skin:'verde',awn:'rayas',sign:'amarillo',board:'verde',time:'dia',bunting:'si',pace:'normal',sound:false,theme:'auto',solved:false};
+let P=loadSave();
+function loadSave(){try{localStorage.removeItem(KEY);}catch(e){}return Object.assign({},DEF);}
+function save(){}
+const S={paid:false,an:null,ran:false,dirty:false,errLine:null,showGoal:false,victory:false,loadT:null,wipeArmed:false};
+const GOAL_AN=analyze(MODEL);
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const reduceMotion=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+const ta=$('#ta'),hl=$('#hl'),gutter=$('#gutter');
+
+/* ---------- Sonido y avisos ---------- */
+let AC=null;
+function tone(f,d,type,when,vol){
+  if(!P.sound)return;
+  try{
+    AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+    const t=AC.currentTime+(when||0),o=AC.createOscillator(),g=AC.createGain();
+    o.type=type||'sine';o.frequency.value=f;
+    g.gain.setValueAtTime(vol||.05,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+    o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d);
+  }catch(e){}
+}
+const sfx={
+  hang:()=>{tone(784,.08,'sine');tone(988,.08,'sine',.12);},
+  err:()=>tone(150,.25,'sawtooth',0,.04),
+  win:()=>[523,659,784,1047].forEach((f,k)=>tone(f,.2,'sine',k*.12))
+};
+let toastT=null;
+function toast(msg){
+  const t=$('#toast');t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+/* ---------- Resaltado y editor ---------- */
+function hlLine(ln){
+  let out='',i=0;
+  while(i<ln.length){
+    const c=ln[i];
+    if(c==='#'){out+=`<span class="t-com">${esc(ln.slice(i))}</span>`;break;}
+    if(c==='"'||c==="'"){
+      let j=i+1;
+      while(j<ln.length&&ln[j]!==c){if(ln[j]==='\\')j++;j++;}
+      const end=Math.min(j+1,ln.length);
+      const body=ln.slice(i,end).split(/(\\.)/).map((s,k)=>k%2?`<span class="t-esc">${esc(s)}</span>`:esc(s)).join('');
+      out+=`<span class="t-str">${body}</span>`;i=end;continue;
+    }
+    const m=/^[\p{L}_][\p{L}\p{N}_]*/u.exec(ln.slice(i));
+    if(m){out+=m[0]==='print'?`<span class="t-kw">print</span>`:esc(m[0]);i+=m[0].length;continue;}
+    const nm=/^\d+(\.\d+)?/.exec(ln.slice(i));
+    if(nm){out+=`<span class="t-num">${nm[0]}</span>`;i+=nm[0].length;continue;}
+    out+=esc(c);i++;
+  }
+  return out||'​';
+}
+function codeHTML(code){return code.split('\n').map(l=>`<span class="l">${hlLine(l)}</span>`).join('');}
+function renderHL(){
+  const lines=ta.value.split('\n');
+  if(ta.value===''){hl.innerHTML=`<span class="l ph">${esc(PLACEHOLDER)}</span>`;}
+  else hl.innerHTML=lines.map((ln,i)=>`<span class="l${S.errLine===i+1?' err':''}">${hlLine(ln)}</span>`).join('');
+  gutter.innerHTML=lines.map((_,i)=>`<div>${i+1}</div>`).join('');
+  syncScroll();
+}
+function syncScroll(){hl.scrollTop=ta.scrollTop;hl.scrollLeft=ta.scrollLeft;gutter.scrollTop=ta.scrollTop;}
+let saveT=null;
+function afterEdit(){
+  S.errLine=null;S.dirty=S.ran;
+  renderHL();renderChecklist();renderStatus();
+  clearTimeout(saveT);saveT=setTimeout(()=>{P.code=ta.value;save();},300);
+}
+function insertAtCursor(text,back){
+  ta.focus();
+  let ok=false;
+  try{ok=document.execCommand('insertText',false,text);}catch(e){}
+  if(!ok){const a=ta.selectionStart,b=ta.selectionEnd;ta.setRangeText(text,a,b,'end');}
+  if(back){const pos=ta.selectionStart-back;ta.setSelectionRange(pos,pos);}
+  afterEdit();
+}
+function insertQuick(k){
+  const q=QUICK[k];
+  const sel=ta.value.slice(ta.selectionStart,ta.selectionEnd);
+  insertAtCursor(q.o+sel+q.c,sel?0:q.c.length);
+}
+
+/* ---------- Lista de requisitos ---------- */
+function renderChecklist(){
+  const an=analyze(ta.value);
+  const r=checkReq(an);
+  const items=[
+    {ok:r.c1,t:'Un comentario para el saludo',d:'Empieza con # y va antes del primer print().'},
+    {ok:r.p1,t:'Un print() con el saludo de bienvenida',d:'Un mensaje en una sola línea para recibir a los clientes.'},
+    {ok:r.c2,t:'Un comentario que diga «Menú del día»',d:'Va después del saludo y antes del menú.'},
+    {ok:r.p2,t:'Un print() con el título del menú',d:'Un segundo print( ) cuya primera línea es el título.'},
+    {ok:r.menuOk,t:'Tres platos con precio dentro de ese mismo print()',d:'Cada plato va en su propia línea, separadas con \\n.',
+      subs:[{ok:r.nl,t:'Uso correcto de \\n (3 saltos de línea)'},{ok:r.dishes,t:'3 platos, cada uno con su precio'}]}
+  ];
+  const firstPending=items.findIndex(x=>!x.ok);
+  $('#reqs').innerHTML=items.map((x,i)=>`<li class="req" data-ok="${x.ok}" data-next="${i===firstPending}"><span class="box" aria-hidden="true">✓</span>
+    <span class="rt">${i+1}. ${esc(x.t)}${x.ok?'<span class="sr-only"> (cumplido)</span>':''}</span><span class="rd">${esc(x.d)}</span>
+    ${x.subs?`<ul class="subs">${x.subs.map(s=>`<li data-ok="${s.ok}"><span class="dot" aria-hidden="true"></span><span>${esc(s.t)}${s.ok?'<span class="sr-only"> (cumplido)</span>':''}</span></li>`).join('')}</ul>`:''}</li>`).join('');
+  $('#reqCount').textContent=`${r.count} de 5`;
+  $('#reqBar').style.width=(r.count/5*100)+'%';
+  const nh=$('#nextHint');
+  nh.dataset.done=String(r.done);
+  const isOpen=S.victory&&!S.dirty&&r.done&&!an.error;
+  nh.innerHTML=`<b>${r.done?'Listo':'Siguiente paso'}</b>${esc(isOpen?'Tu restaurante está abierto. Cambia los platos o los textos y vuelve a ejecutar para ver el resultado.':nextHint(r))}${an.error?'<span class="warn">Tu código tiene un error de escritura. Pulsa Ejecutar para ver cuál.</span>':''}`;
+}
+
+/* ---------- Consola ---------- */
+function renderConsole(an){
+  const c=$('#cons');c.innerHTML='';
+  const add=(t,cls)=>{const d=document.createElement('div');d.className=cls;d.textContent=t;c.append(d);};
+  add('$ python restaurante.py','cmd');
+  an.outputs.forEach(o=>add(o.text===''?' ':o.text,'out'));
+  if(an.error){add(tracebackText(an.error),'err');add('Proceso terminado con código 1','exit bad');}
+  else add('Proceso terminado con código 0','exit');
+  const box=$('#consoleBox');box.scrollTop=box.scrollHeight;
+}
+
+/* ---------- Escena del teléfono ---------- */
+function emptyMsg(t,s){return `<div class="empty-msg"><p class="e-t">${esc(t)}</p><p class="e-s">${esc(s)}</p></div>`;}
+function signHTML(text,d,cls){
+  return `<div class="sign${cls?' '+cls:''}" style="--d:${d}s">${esc(text)===''?'&nbsp;':esc(text)}</div>`;
+}
+function boardHTML(text,d){
+  const m=parseMenu(text);
+  let rows='';
+  if(!m.rows.length)rows='<li class="b-none">Sin platos todavía</li>';
+  else rows=m.rows.map((r,i)=>{
+    const dd=(d+.35+i*.18).toFixed(2);
+    return r.plain!==undefined?`<li class="plain" style="--d:${dd}s">${esc(r.plain)}</li>`
+      :`<li style="--d:${dd}s"><span class="b-name">${esc(r.name)}</span><i class="b-dots"></i><span class="b-price">${esc(r.price)}</span></li>`;
+  }).join('');
+  return `<div class="board" style="--d:${d}s"><div class="b-title">${esc(m.title)}</div><ul class="b-rows">${rows}</ul></div>`;
+}
+function streetHTML(mode){
+  const tag=mode==='open'?'Abierto':mode==='closed'?'Cerrado':'Pronto';
+  return `<div class="street" id="street" data-mode="${mode}" aria-hidden="true"><div class="s-count" id="sCount"></div>
+    <div class="s-door" id="sDoor" data-s="${mode}"><div class="s-in"></div><div class="s-leaf"><i class="s-knob"></i></div><span class="s-tag">${tag}</span></div>
+    <div class="s-people" id="sPeople"></div></div>`;
+}
+function frame(o){
+  const name=esc(o.name||P.name||'Mi restaurante');
+  let h=`<div class="facade${o.cls?' '+o.cls:''}">`;
+  if(o.ribbon)h+=`<div class="ribbon${o.ribbon[1]?' '+o.ribbon[1]:''}">${esc(o.ribbon[0])}</div>`;
+  h+='<div class="awning"></div><div class="valance"></div>';
+  h+=`<div class="bunting" aria-hidden="true">${BUNTING.map(c=>`<i style="--c:${c}"></i>`).join('')}</div>`;
+  h+=`<div class="shopbar"><span class="shopname">${name}</span><span class="door" data-s="${o.door}">${o.doorText}</span></div>`;
+  h+=`<div class="window">${o.win}</div>`;
+  if(o.street)h+=streetHTML(o.street);
+  return h+'</div>';
+}
+function sceneHTML(an,o){
+  o=o||{};
+  if(!an)return frame({cls:'idle',door:'idle',doorText:'Pronto',street:'idle',
+    win:emptyMsg('Aquí aparecerá tu restaurante','Escribe el código, pulsa Ejecutar y mira cómo se cuelgan los carteles.')});
+  if(an.error){
+    const e=an.error;
+    return frame({cls:'locked',door:'closed',doorText:'Cerrado',street:'closed',
+      win:`<div class="signs"><div class="sign bad" style="--d:0s"><strong>Cartel mal colgado</strong><small>línea ${e.line} · ${esc(e.type)}: ${esc(e.msg)}</small></div></div><p class="lock"><b>El restaurante sigue cerrado</b>${esc(e.friendly)}</p>`});
+  }
+  if(!an.outputs.length)return frame({door:'closed',doorText:'Cerrado',street:'closed',
+    win:emptyMsg('Todavía no hay carteles','Tu código se ejecutó, pero ningún print() mostró algo. Escribe un print("...") con tu saludo.')});
+  const outs=an.outputs;
+  let d=0;const step=.5;
+  let w='<div class="signs">'+signHTML(outs[0].text,d)+'</div>';d+=step;
+  if(outs[1]){w+=boardHTML(outs[1].text,d);d+=step+.4;}
+  if(outs.length>2){
+    w+='<div class="signs">';
+    outs.slice(2).forEach(x=>{w+=signHTML(x.text,d,'small');d+=.3;});
+    w+='</div>';
+  }
+  return frame({cls:(o.ghost?'ghost ':'')+(o.win?'open':''),
+    ribbon:o.ghost?['Meta del reto','goal']:(o.win&&!o.example?['¡Reto superado!','']:null),
+    door:o.win?'open':'prep',doorText:o.win?'Abierto':'En obras',win:w,
+    street:o.example?null:(o.win?'open':'closed'),name:o.name});
+}
+
+/* ---------- Clientes en la calle ---------- */
+const PACE={calmo:{ask:2300,react:1500,walk:1300,gap:700},normal:{ask:1700,react:1100,walk:1000,gap:450},movido:{ask:1100,react:750,walk:700,gap:200}};
+const GENERIC=['Pizza','Hamburguesa','Ensalada','Café','Helado','Sopa','Jugo'];
+const SADS=['Uy… no hay','Qué pena…','Mmm, nada','Me voy triste'];
+const asksOpen=n=>[n+', por favor','Quiero pedir: '+n,'Para mí: '+n];
+const asksClosed=n=>['¿Tienen '+n.toLowerCase()+'?','¿Hay '+n.toLowerCase()+'?','¿Venden '+n.toLowerCase()+'?'];
+const PB=['#E8566F','#4FB3E8','#7BD389','#F4C542','#9B7BD4','#F08A4B'];
+const PS=['#F2C9A5','#E0A97C','#C68B5B','#8D5A3B','#FBE0C8'];
+const PH=['#2B1B12','#6B3E1E','#D9A441','#1B1B1B','#B5543C'];
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const St={run:0,people:[],menu:[],served:0,left:0,last:''};
+
+function personEl(){
+  const hs=Math.floor(Math.random()*3);
+  const hair=hs===0?'<path class="p-hair" d="M11 14 Q11 3 22 3 Q33 3 33 14 Q28 8 22 8 Q16 8 11 14Z"/>'
+    :hs===1?'<path class="p-hair" d="M11 14 Q11 3 22 3 Q33 3 33 14 Q28 8 22 8 Q16 8 11 14Z"/><circle class="p-hair" cx="22" cy="2.5" r="4"/>'
+    :'<path class="p-hair" d="M10.5 12 Q11 2 22 2 Q33 2 33.5 12Z"/><rect class="p-hair" x="8" y="10" width="28" height="3.5" rx="1.7"/>';
+  const el=document.createElement('div');
+  el.className='person';el.dataset.mood='idle';
+  el.style.setProperty('--pb',rnd(PB));el.style.setProperty('--ps',rnd(PS));el.style.setProperty('--ph',rnd(PH));
+  el.innerHTML=`<div class="bub"></div><div class="p-in"><svg viewBox="0 0 44 64" aria-hidden="true"><rect class="p-leg" x="12" y="54" width="8" height="9" rx="3"/><rect class="p-leg" x="24" y="54" width="8" height="9" rx="3"/><rect class="p-body" x="8" y="26" width="28" height="30" rx="10"/><circle class="p-head" cx="22" cy="15" r="11"/>${hair}<circle class="p-eye" cx="18" cy="15" r="1.5"/><circle class="p-eye" cx="26" cy="15" r="1.5"/><path class="p-m m-idle" d="M18.5 21 H25.5"/><path class="p-m m-happy" d="M17.5 20 Q22 26 26.5 20"/><path class="p-m m-sad" d="M17.5 23 Q22 18 26.5 23"/><path class="p-tear" d="M27.5 18 q1.6 2.6 0 3.6 q-1.6 -1 0 -3.6z"/></svg></div>`;
+  return el;
+}
+function geo(el){
+  const fs=parseFloat(getComputedStyle(el).fontSize)||16;
+  const sw=el.clientWidth/fs;
+  const doorLeft=sw-4.4;
+  return{sw,doorLeft,doorX:doorLeft+.6,slot:k=>doorLeft-2.7-k*2.8,max:Math.max(2,Math.min(5,Math.floor((doorLeft-2.9)/2.8)+1))};
+}
+function say(p,text,cls){
+  const b=p.querySelector('.bub');
+  if(!text){b.classList.remove('show');return;}
+  b.textContent=text;b.className='bub show'+(cls?' '+cls:'');
+}
+function mood(p,m){p.dataset.mood=m;}
+function moveTo(p,x,dur,walk){
+  p.style.setProperty('--dur',dur+'ms');p.style.setProperty('--x',x+'em');
+  if(walk){p.classList.add('walk');setTimeout(()=>p.classList.remove('walk'),dur);}
+}
+function pickItem(open){
+  const pool=open?St.menu:GENERIC;
+  let it=rnd(pool),guard=0;
+  while(pool.length>1&&it===St.last&&guard++<12)it=rnd(pool);
+  St.last=it;return it;
+}
+function updateCount(cnt,open){
+  cnt.textContent=open?`Atendidos ${St.served}`:`Se fueron tristes ${St.left}`;
+  renderStats();
+}
+function renderStats(){
+  const an=S.showGoal?null:S.an,ok=an&&!an.error;
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  set('stSigns',ok?an.outputs.length:0);
+  set('stNotes',an?an.comments.filter(c=>c.text).length:0);
+  set('stClients',S.victory&&!S.showGoal?St.served:0);
+}
+function reflow(box,g,T){
+  St.people.forEach((q,k)=>moveTo(q,g.slot(k),T.walk,true));
+  while(St.people.length<g.max){
+    const k=St.people.length;
+    const q=personEl();
+    q.style.setProperty('--dur','0ms');q.style.setProperty('--x','-3.4em');
+    box.append(q);q.offsetWidth;
+    moveTo(q,g.slot(k),Math.round(T.walk*1.7),true);
+    St.people.push(q);
+  }
+}
+async function streetLoop(myRun,el,box,door,cnt,open){
+  const alive=()=>St.run===myRun&&el.isConnected;
+  await sleep(700);
+  while(alive()){
+    const T=PACE[P.pace]||PACE.normal;
+    const g=geo(el);
+    const p=St.people[0];
+    if(!p){await sleep(300);continue;}
+    const item=pickItem(open);
+    if(open){
+      mood(p,'happy');say(p,rnd(asksOpen(item)));
+      await sleep(T.ask);if(!alive())return;
+      say(p,null);
+      St.people.shift();
+      moveTo(p,g.doorX,T.walk,true);
+      reflow(box,g,T);
+      await sleep(T.walk);if(!alive())return;
+      door.classList.add('in');
+      await sleep(260);
+      p.classList.add('gone');
+      St.served++;updateCount(cnt,true);
+      await sleep(380);
+      door.classList.remove('in');p.remove();
+    }else{
+      say(p,rnd(asksClosed(item)));
+      await sleep(T.ask);if(!alive())return;
+      mood(p,'sad');say(p,rnd(SADS),'sad');
+      await sleep(T.react);if(!alive())return;
+      say(p,null);p.classList.add('flip','leaving');
+      St.people.shift();
+      moveTo(p,-3.8,Math.round(T.walk*1.6),true);
+      reflow(box,g,T);
+      St.left++;updateCount(cnt,false);
+      await sleep(Math.round(T.walk*1.6));if(!alive())return;
+      p.remove();
+    }
+    await sleep(T.gap);
+  }
+}
+function streetStart(an){
+  const myRun=++St.run;
+  St.people=[];St.served=0;St.left=0;
+  const el=document.getElementById('street');
+  if(!el)return;
+  const mode=el.dataset.mode;
+  if(mode==='idle')return;
+  const open=mode==='open';
+  const box=el.querySelector('#sPeople'),door=el.querySelector('#sDoor'),cnt=el.querySelector('#sCount');
+  St.menu=open&&an&&an.outputs[1]?parseMenu(an.outputs[1].text).rows.map(r=>r.name||r.plain).filter(Boolean):[];
+  if(open&&!St.menu.length)St.menu=GENERIC.slice(0,3);
+  St.served=0;St.left=0;St.last='';
+  const g=geo(el);
+  for(let k=0;k<g.max;k++){
+    const p=personEl();
+    p.style.setProperty('--dur','0ms');p.style.setProperty('--x',g.slot(k)+'em');
+    box.append(p);St.people.push(p);
+  }
+  if(reduceMotion){
+    const p0=St.people[0];
+    if(open){mood(p0,'happy');say(p0,rnd(asksOpen(pickItem(true))));}
+    else{mood(p0,'sad');say(p0,rnd(SADS),'sad');}
+    return;
+  }
+  streetLoop(myRun,el,box,door,cnt,open);
+}
+function renderNotes(an){
+  const box=$('#notes');
+  const cs=an?an.comments.filter(c=>c.text):[];
+  box.innerHTML=cs.map((c,i)=>`<span class="note" style="--d:${(i*.12).toFixed(2)}s">${esc('# '+c.text)}</span>`).join('');
+}
+function renderScene(){
+  const scr=$('#screen');
+  let an=S.an,o={win:S.victory};
+  if(S.showGoal){an=GOAL_AN;o={ghost:true,win:true};}
+  scr.dataset.skin=P.skin;
+  $('#scene').innerHTML=sceneHTML(an,o);
+  renderNotes(an);
+  streetStart(an);renderStats();
+  const gb=$('#goalBtn');
+  gb.setAttribute('aria-pressed',String(S.showGoal));
+  gb.textContent=S.showGoal?'Ver mi restaurante':'Ver la meta';
+}
+function renderStatus(force){
+  const el=$('#statusbar');let s='wait',t='';
+  if(force==='loading')t='Colgando carteles…';
+  else if(S.showGoal)t='Estás viendo la meta. Así debe quedar tu restaurante.';
+  else if(!S.ran)t='Pulsa Ejecutar para ver tu restaurante.';
+  else if(S.dirty)t='Cambiaste el código. Pulsa Ejecutar para actualizar el restaurante.';
+  else if(S.an.error){s='bad';t=`Cartel mal colgado en la línea ${S.an.error.line}. Corrige el error para ver tu restaurante.`;}
+  else if(S.victory){s='ok';t='¡Todo en orden! Tu restaurante está abierto.';}
+  else{const n=5-checkReq(S.an).count;t=`El código funciona. Faltan ${n} ${n===1?'requisito':'requisitos'} para abrir.`;}
+  el.dataset.s=s;el.textContent=t;
+}
+function renderVictory(){
+  const v=$('#victory');
+  if(!S.victory){v.innerHTML='';return;}
+  const used=ta.value.split('\n').filter(l=>l.trim()).length;
+  const nc=S.an.comments.filter(c=>c.text).length;
+  v.innerHTML=`<div class="cert"><p class="eyebrow">Reto superado</p><h3>¡Tu restaurante abrió!</h3>
+    <p>Dejaste notas con # que Python ignoró y usaste dos print() para mostrar el saludo y el menú. Python leyó tu código de arriba hacia abajo y colgó los carteles en ese orden.</p>
+    <dl><div><dt>Líneas</dt><dd>${used}</dd></div><div><dt>Comentarios</dt><dd>${nc}</dd></div><div><dt>Platos</dt><dd>3</dd></div></dl>
+    <div class="chips"><button class="btn small" type="button" data-copy>Copiar mi código</button><button class="btn small" type="button" data-clear>Empezar de nuevo</button></div></div>`;
+}
+function confetti(){
+  if(reduceMotion)return;
+  const box=$('#sceneWrap'),cols=['#F4C542','#E8566F','#4FB3E8','#7BD389','#FFFFFF'];
+  for(let k=0;k<34;k++){
+    const i=document.createElement('i');i.className='conf';
+    i.style.left=(Math.random()*100)+'%';
+    i.style.background=cols[k%cols.length];
+    i.style.setProperty('--x',((Math.random()-.5)*90)+'px');
+    i.style.setProperty('--r',(Math.random()*720-360)+'deg');
+    i.style.animationDelay=(Math.random()*.6)+'s';
+    box.append(i);setTimeout(()=>i.remove(),3000);
+  }
+}
+
+/* ---------- Ejecutar ---------- */
+function run(opts){
+  opts=opts||{};
+  const an=analyze(ta.value);
+  S.an=an;S.ran=true;S.dirty=false;S.showGoal=false;S.errLine=an.error?an.error.line:null;
+  renderHL();renderConsole(an);
+  const win=!an.error&&checkReq(an).done;
+  clearTimeout(S.loadT);
+  const delay=(opts.auto||reduceMotion)?0:650;
+  const scr=$('#screen');
+  scr.classList.toggle('loading',delay>0);
+  renderStatus(delay>0?'loading':undefined);
+  S.loadT=setTimeout(()=>{
+    scr.classList.remove('loading');
+    const was=S.victory;
+    S.victory=win;
+    renderScene();renderVictory();renderStatus();renderChecklist();
+    if(win){P.solved=true;}
+    P.code=ta.value;save();
+    if(opts.auto)return;
+    if(win){if(!was)confetti();sfx.win();toast('¡Reto superado! Tu restaurante abrió.');}
+    else if(an.error){sfx.err();}
+    else{sfx.hang();}
+  },delay);
+}
+
+/* ---------- Acciones ---------- */
+function copyText(text){
+  const fallback=()=>{ta.focus();ta.select();toast('Selecciona el código y cópialo con Ctrl + C');};
+  try{navigator.clipboard.writeText(text).then(()=>toast('Código copiado'),fallback);}catch(e){fallback();}
+}
+function setCode(code){
+  ta.value=code;ta.scrollTop=0;ta.scrollLeft=0;
+  S.errLine=null;renderHL();renderChecklist();
+}
+function clearAll(){
+  clearTimeout(S.loadT);$('#screen').classList.remove('loading');
+  setCode('');S.an=null;S.ran=false;S.dirty=false;S.victory=false;S.showGoal=false;
+  $('#cons').innerHTML='';renderScene();renderVictory();renderStatus();
+  P.code='';save();ta.focus();
+}
+const OPTS=[
+  {k:'skin',t:'Color del toldo',type:'swatch',vals:SKINS},
+  {k:'awn',t:'Estilo del toldo',vals:[['rayas','Rayas'],['anchas','Anchas'],['liso','Liso']]},
+  {k:'sign',t:'Cartel de bienvenida',type:'swatch',vals:[['amarillo','#F4C542'],['blanco','#FFFFFF'],['rosa','#F6B8CF'],['celeste','#A9D8F5']]},
+  {k:'board',t:'Pizarra del menú',vals:[['verde','Verde'],['negra','Negra'],['kraft','Kraft']]},
+  {k:'time',t:'Hora del día',vals:[['dia','Día'],['tarde','Tarde'],['noche','Noche']]},
+  {k:'bunting',t:'Banderines',vals:[['si','Con'],['no','Sin']]},
+  {k:'pace',t:'Ritmo de los clientes',vals:[['calmo','Calmo'],['normal','Normal'],['movido','Movido']]},
+  {k:'sound',t:'Sonidos',vals:[['no','Apagados'],['si','Activados']]},
+  {k:'theme',t:'Tema de la página',vals:[['auto','Auto'],['light','Claro'],['dark','Oscuro']]}
+];
+function optVal(k){return k==='sound'?(P.sound?'si':'no'):P[k];}
+function renderOptions(){
+  $('#optGrid').innerHTML=`<div class="field"><label for="shopInput">Nombre en el letrero</label><input id="shopInput" type="text" maxlength="26" autocomplete="off" value="${esc(P.name)}"></div>`+
+    OPTS.map(o=>`<div class="field"><span class="lb" id="lb-${o.k}">${o.t}</span><div class="${o.type==='swatch'?'skins':'seg'}" role="group" aria-labelledby="lb-${o.k}">${o.vals.map(v=>o.type==='swatch'
+      ?`<button class="swatch" type="button" style="--c:${v[1]}" data-opt="${o.k}" data-val="${v[0]}" aria-label="${o.t}: ${v[0]}" aria-pressed="false"></button>`
+      :`<button class="btn" type="button" data-opt="${o.k}" data-val="${v[0]}" aria-pressed="false">${v[1]}</button>`).join('')}</div></div>`).join('');
+}
+function applyLook(){
+  const s=$('#screen');
+  ['skin','awn','sign','board','time','bunting'].forEach(k=>{s.dataset[k]=P[k];});
+  document.querySelectorAll('[data-opt]').forEach(b=>b.setAttribute('aria-pressed',String(optVal(b.dataset.opt)===b.dataset.val)));
+  updateSecret();
+}
+function isSecret(){return P.skin==='rosa'&&P.time==='noche'&&P.awn==='liso'&&P.board==='kraft';}
+function keyHash(t){let h=5381;t=String(t).toUpperCase().replace(/[^A-Z0-9]/g,'');for(let i=0;i<t.length;i++)h=((h*33)^t.charCodeAt(i))>>>0;return h;}
+const KEYH=3632470863;
+function updateSecret(){
+  const box=$('#secret');if(!box)return;
+  const on=isSecret(),was=!box.hidden;
+  box.hidden=!on;
+  if(on&&!was)toast('Psst… apareció algo en el panel de opciones 👀');
+  $('#payForm').hidden=S.paid;
+  $('#payCode').hidden=!S.paid;
+  if(S.paid)$('#payPre').innerHTML=codeHTML(MODEL);
+}
+function startOver(){
+  clearAll();
+  Object.assign(P,DEF);S.paid=false;
+  const k=$('#payKey');if(k)k.value='';
+  const m=$('#payMsg');if(m){m.textContent='';m.dataset.s='';}
+  const i=$('#shopInput');if(i)i.value=P.name;
+  applyLook();applyTheme();renderStats();toast('Todo en cero: código, opciones y contadores');
+  ta.blur();window.scrollTo({top:0,behavior:reduceMotion?'auto':'smooth'});
+}
+function setOpt(k,v){
+  if(k==='sound'){P.sound=v==='si';if(P.sound)tone(660,.12,'sine');}
+  else P[k]=v;
+  save();applyLook();
+  if(k==='theme')applyTheme();
+}
+function resetOpts(){
+  ['name','skin','awn','sign','board','time','bunting','pace'].forEach(k=>{P[k]=DEF[k];});
+  P.sound=false;P.theme='auto';save();
+  const i=$('#shopInput');if(i)i.value=P.name;
+  document.querySelectorAll('#scene .shopname').forEach(n=>{n.textContent=P.name;});
+  applyLook();applyTheme();toast('Opciones restablecidas');
+}
+function applyTheme(){
+  const r=document.documentElement;
+  if(P.theme==='auto')r.removeAttribute('data-theme');else r.setAttribute('data-theme',P.theme);
+}
+
+/* ---------- Eventos ---------- */
+ta.addEventListener('input',afterEdit);
+ta.addEventListener('scroll',syncScroll);
+ta.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&!e.ctrlKey&&!e.metaKey&&!e.shiftKey&&!e.altKey&&!e.isComposing){
+    const v=ta.value,a=ta.selectionStart;
+    const ls=v.lastIndexOf('\n',a-1)+1;
+    const cur=v.slice(ls,a);
+    let ind=/^[ \t]*/.exec(cur)[0];
+    if(/\($/.test(cur.trimEnd()))ind+='    ';
+    if(ind){e.preventDefault();insertAtCursor('\n'+ind);}
+  }
+});
+document.addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();run();}
+});
+$('#runBtn').addEventListener('click',()=>run());
+$('#clearBtn').addEventListener('click',e=>{
+  const b=e.currentTarget;
+  if(!S.wipeArmed){S.wipeArmed=true;b.textContent='¿Seguro? Pulsa otra vez';setTimeout(()=>{S.wipeArmed=false;b.textContent='Borrar todo';},4000);return;}
+  S.wipeArmed=false;b.textContent='Borrar todo';clearAll();
+});
+$('#quick').addEventListener('mousedown',e=>e.preventDefault());
+$('#quick').addEventListener('click',e=>{const b=e.target.closest('[data-q]');if(b)insertQuick(Number(b.dataset.q));});
+$('#goalBtn').addEventListener('click',()=>{S.showGoal=!S.showGoal;renderScene();renderStatus();});
+document.addEventListener('click',e=>{
+  const op=e.target.closest('[data-opt]');
+  if(op){setOpt(op.dataset.opt,op.dataset.val);return;}
+  if(e.target.closest('#resetOpts')){resetOpts();return;}
+  if(e.target.closest('#payCopy')){copyText(MODEL);return;}
+  if(e.target.closest('#payLoad')){setCode(MODEL);afterEdit();run();toast("Código resultado cargado y ejecutado");return;}
+  const fb=e.target.closest('#freshBtn');
+  if(fb){
+    if(!S.freshArmed){S.freshArmed=true;fb.textContent='¿Seguro? Pulsa otra vez';setTimeout(()=>{S.freshArmed=false;fb.textContent='Empezar de cero';},4000);return;}
+    S.freshArmed=false;fb.textContent='Empezar de cero';startOver();return;
+  }
+  if(e.target.closest('[data-copy]')){copyText(ta.value);return;}
+  if(e.target.closest('[data-clear]')){clearAll();return;}
+});
+document.addEventListener('submit',e=>{
+  if(e.target.id!=='payForm')return;
+  e.preventDefault();
+  const v=$('#payKey').value.trim(),m=$('#payMsg');
+  if(!v){m.dataset.s='bad';m.textContent='Primero paga en persona y pídele la clave a quien te califica.';return;}
+  if(keyHash(v)!==KEYH){m.dataset.s='bad';m.textContent='Clave incorrecta. ¿Seguro que ya pagaste los 2 dólares? Aquí no se aceptan pagarés.';return;}
+  S.paid=true;m.dataset.s='ok';m.textContent='¡Pago recibido! Gracias por su compra.';
+  updateSecret();sfx.win();
+});
+document.addEventListener('input',e=>{
+  if(e.target.id==='shopInput'){
+    P.name=e.target.value;save();
+    document.querySelectorAll('#scene .shopname').forEach(n=>{n.textContent=P.name||'Mi restaurante';});
+  }
+});
+$('#jump').addEventListener('click',()=>{
+  const toPhone=$('#jump').dataset.to==='phone';
+  (toPhone?$('#phone'):$('#ta')).scrollIntoView({behavior:reduceMotion?'auto':'smooth',block:'start'});
+});
+if('IntersectionObserver' in window){
+  new IntersectionObserver(es=>{
+    const vis=es[0].isIntersecting;
+    const j=$('#jump');j.dataset.to=vis?'code':'phone';j.textContent=vis?'Ir al código':'Ver el restaurante';
+  },{threshold:.35}).observe($('#phone'));
+}
+$('#jump').dataset.to='phone';
+
+/* ---------- Inicio ---------- */
+$('#exScene').innerHTML=sceneHTML(GOAL_AN,{win:true,example:true,name:'Mi restaurante'});
+if(window.innerWidth<=900)$('#custom').removeAttribute('open');
+if(P.theme!=='auto')applyTheme();
+renderOptions();applyLook();
+ta.value='';
+renderHL();renderChecklist();renderScene();renderStatus();renderStats();updateSecret();
+</script>
+
+</body></html>
